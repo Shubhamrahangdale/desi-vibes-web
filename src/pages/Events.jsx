@@ -133,7 +133,7 @@ const Events = () => {
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [selectedPrice, setSelectedPrice] = useState("Any Price");
   const [showFilters, setShowFilters] = useState(false);
-  const [likedEvents, setLikedEvents] = useState<number[]>([]);
+  const [likedEvents, setLikedEvents] = useState([]);
 
   const filteredEvents = allEvents.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -150,7 +150,7 @@ const Events = () => {
     return matchesSearch && matchesCategory && matchesCity && matchesPrice;
   });
 
-  const toggleLike = (id: number) => {
+  const toggleLike = (id) => {
     setLikedEvents((prev) =>
       prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
     );
