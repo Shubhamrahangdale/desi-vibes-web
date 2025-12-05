@@ -77,13 +77,13 @@ const categories = ["All", "Conference", "Festival", "Workshop", "Concert", "Net
 
 const FeaturedEvents = () => {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [likedEvents, setLikedEvents] = useState<number[]>([]);
+  const [likedEvents, setLikedEvents] = useState([]);
 
   const filteredEvents = activeCategory === "All" 
     ? events 
     : events.filter(event => event.category === activeCategory);
 
-  const toggleLike = (id: number) => {
+  const toggleLike = (id) => {
     setLikedEvents(prev => 
       prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
     );

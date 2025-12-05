@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const Register = () => {
@@ -17,23 +16,15 @@ const Register = () => {
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState<"attendee" | "organizer">("attendee");
+  const [userType, setUserType] = useState("attendee");
   const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const { signUp, user, loading } = useAuth();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/");
-    }
-  }, [user, loading, navigate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.password) {
@@ -74,28 +65,13 @@ const Register = () => {
 
     setIsLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password, formData.name);
+    // Simulate registration (static - no backend)
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (error) {
-      console.error("Signup error:", error);
-      let errorMessage = error.message;
-      
-      if (error.message.includes("already registered")) {
-        errorMessage = "This email is already registered. Please login instead.";
-      }
-      
-      toast({
-        title: "Registration Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Registration Successful!",
-        description: "Welcome to EventMitra! You can now login.",
-      });
-      navigate("/");
-    }
+    toast({
+      title: "Demo Mode",
+      description: "This is a static demo. Backend registration is not connected.",
+    });
     
     setIsLoading(false);
   };
@@ -107,14 +83,6 @@ const Register = () => {
     "Secure payment processing",
     "24/7 customer support",
   ];
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex">

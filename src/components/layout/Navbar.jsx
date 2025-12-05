@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Calendar, User, LogIn, LogOut } from "lucide-react";
+import { Menu, X, Calendar, User, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, signOut, loading } = useAuth();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -19,16 +15,7 @@ const Navbar = () => {
     { name: "Contact", href: "/contact" },
   ];
 
-  const isActive = (href: string) => location.pathname === href;
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out.",
-    });
-    navigate("/");
-  };
+  const isActive = (href) => location.pathname === href;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
@@ -64,34 +51,18 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            {loading ? (
-              <div className="w-8 h-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            ) : user ? (
-              <>
-                <span className="text-sm text-muted-foreground">
-                  {user.email}
-                </span>
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/login">
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link to="/register">
-                    <User className="w-4 h-4 mr-2" />
-                    Register
-                  </Link>
-                </Button>
-              </>
-            )}
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/login">
+                <LogIn className="w-4 h-4 mr-2" />
+                Login
+              </Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link to="/register">
+                <User className="w-4 h-4 mr-2" />
+                Register
+              </Link>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -124,21 +95,12 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex gap-2 mt-4 px-4">
-                {user ? (
-                  <Button variant="outline" size="sm" className="flex-1" onClick={handleSignOut}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
-                ) : (
-                  <>
-                    <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link to="/login" onClick={() => setIsOpen(false)}>Login</Link>
-                    </Button>
-                    <Button size="sm" className="flex-1" asChild>
-                      <Link to="/register" onClick={() => setIsOpen(false)}>Register</Link>
-                    </Button>
-                  </>
-                )}
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link to="/login" onClick={() => setIsOpen(false)}>Login</Link>
+                </Button>
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/register" onClick={() => setIsOpen(false)}>Register</Link>
+                </Button>
               </div>
             </div>
           </div>
