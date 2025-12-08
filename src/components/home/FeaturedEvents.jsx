@@ -90,7 +90,7 @@ const FeaturedEvents = () => {
   };
 
   return (
-    <section className="py-20 md:py-28 bg-background">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container px-4">
         {/* Header */}
         <div className="text-center mb-12">
