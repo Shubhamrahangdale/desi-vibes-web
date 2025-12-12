@@ -29,10 +29,21 @@ const Login = () => {
     // Simulate login (static - no backend)
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    toast({
-      title: "Demo Mode",
-      description: "This is a static demo. Backend authentication is not connected.",
-    });
+    // Check if organizer login (demo)
+    if (email.includes("organizer") || email.includes("admin")) {
+      toast({
+        title: "Welcome, Organizer!",
+        description: "Redirecting to your dashboard...",
+      });
+      setTimeout(() => {
+        window.location.href = "/organizer";
+      }, 500);
+    } else {
+      toast({
+        title: "Welcome Back!",
+        description: "Login successful. This is a demo mode.",
+      });
+    }
     
     setIsLoading(false);
   };
