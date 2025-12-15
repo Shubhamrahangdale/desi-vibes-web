@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,20 +32,22 @@ const Login = () => {
     // Simulate login (static - no backend)
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Login and get user info
+    const userInfo = login({ email });
+    
     // Check if organizer login (demo)
-    if (email.includes("organizer") || email.includes("admin")) {
+    if (userInfo.role === "organizer") {
       toast({
         title: "Welcome, Organizer!",
         description: "Redirecting to your dashboard...",
       });
-      setTimeout(() => {
-        window.location.href = "/organizer";
-      }, 500);
+      navigate("/organizer");
     } else {
       toast({
         title: "Welcome Back!",
-        description: "Login successful. This is a demo mode.",
+        description: "Login successful.",
       });
+      navigate("/");
     }
     
     setIsLoading(false);
