@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -256,6 +256,7 @@ const allEvents = [
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
   const [ticketCount, setTicketCount] = useState(1);
 
@@ -292,10 +293,7 @@ const EventDetails = () => {
   const ticketsPercentage = (event.attendees / event.totalCapacity) * 100;
 
   const handleBookTickets = () => {
-    toast({
-      title: "Demo Mode",
-      description: `Booking ${ticketCount} ticket(s) for ${event.title}. Backend not connected.`,
-    });
+    navigate(`/events/${id}/book`);
   };
 
   const handleShare = () => {
