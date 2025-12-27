@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -65,15 +67,63 @@ const Register = () => {
 
     setIsLoading(true);
     
-    // Simulate registration (static - no backend)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Demo Mode",
-      description: "This is a static demo. Backend registration is not connected.",
-    });
-    
-    setIsLoading(false);
+    try {
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: formData.name,
+            phone: formData.phone,
+            user_type: userType,
+          }
+        }
+      });
+
+      if (error) {
+        if (error.message.includes("already registered")) {
+          toast({
+            title: "Account exists",
+            description: "This email is already registered. Please login instead.",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      // If user selected organizer, add organizer role
+      if (userType === "organizer" && data.user) {
+        // Note: The handle_new_user trigger creates the profile and attendee role
+        // We need to add organizer role separately (requires admin approval in full flow)
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: data.user.id, role: "organizer" });
+        
+        if (roleError) {
+          console.error("Error adding organizer role:", roleError);
+        }
+      }
+
+      toast({
+        title: "Account Created!",
+        description: "Welcome to EventMitra. You can now login.",
+      });
+      
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast({
+        title: "Registration failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const features = [

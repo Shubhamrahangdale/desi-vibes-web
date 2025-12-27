@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +12,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Check if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/");
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,28 +39,56 @@ const Login = () => {
 
     setIsLoading(true);
     
-    // Simulate login (static - no backend)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Login and get user info
-    const userInfo = login({ email });
-    
-    // Check if organizer login (demo)
-    if (userInfo.role === "organizer") {
-      toast({
-        title: "Welcome, Organizer!",
-        description: "Redirecting to your dashboard...",
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      navigate("/organizer");
-    } else {
+
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            title: "Login failed",
+            description: "Invalid email or password. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      // Check user role to determine redirect
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id);
+
+      const isOrganizer = roles?.some(r => r.role === "organizer");
+
+      if (isOrganizer) {
+        toast({
+          title: "Welcome, Organizer!",
+          description: "Redirecting to your dashboard...",
+        });
+        navigate("/organizer");
+      } else {
+        toast({
+          title: "Welcome Back!",
+          description: "Login successful.",
+        });
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Welcome Back!",
-        description: "Login successful.",
+        title: "Login failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
       });
-      navigate("/");
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
