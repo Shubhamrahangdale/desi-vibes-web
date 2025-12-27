@@ -3,6 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { AdminProvider } from "@/context/AdminContext";
+import { OrganiserProvider } from "@/context/OrganiserContext";
+import { EventProvider } from "@/context/EventContext";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
@@ -17,6 +20,8 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminOrganisers from "./pages/admin/AdminOrganisers";
+import AdminEvents from "./pages/admin/AdminEvents";
 
 const App = () => {
   // Force light mode as default
@@ -26,33 +31,42 @@ const App = () => {
   }, []);
 
   return (
-  <AuthProvider>
-    <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/events/:id" element={<EventDetails />} />
-            <Route path="/events/:id/book" element={<BookingForm />} />
-            <Route path="/booking/confirmation" element={<BookingConfirmation />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/organizer" element={<OrganizerDashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-  </AuthProvider>
+    <AuthProvider>
+      <AdminProvider>
+        <OrganiserProvider>
+          <EventProvider>
+            <TooltipProvider>
+              <Toaster />
+              <BrowserRouter>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/events/:id" element={<EventDetails />} />
+                  <Route path="/events/:id/book" element={<BookingForm />} />
+                  <Route path="/booking/confirmation" element={<BookingConfirmation />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/organizer" element={<OrganizerDashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminLogin />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/organisers" element={<AdminOrganisers />} />
+                  <Route path="/admin/events" element={<AdminEvents />} />
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </EventProvider>
+        </OrganiserProvider>
+      </AdminProvider>
+    </AuthProvider>
   );
 };
 
