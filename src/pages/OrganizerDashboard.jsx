@@ -24,7 +24,12 @@ import {
   LayoutDashboard,
   CalendarDays,
   Settings,
-  LogOut
+  LogOut,
+  CreditCard,
+  Crown,
+  CheckCircle,
+  AlertCircle,
+  Sparkles
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -212,9 +217,21 @@ const OrganizerDashboard = () => {
     resetForm();
   };
 
+  // Demo subscription data
+  const subscription = {
+    status: 'active', // 'active', 'expired', 'none'
+    plan: 'Annual Premium',
+    amount: 25000,
+    startDate: '2024-01-15',
+    expiryDate: '2025-01-15',
+    eventsAllowed: 50,
+    eventsUsed: events.length,
+  };
+
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "My Events", icon: CalendarDays },
+    { id: "subscription", label: "Subscription", icon: CreditCard },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -272,6 +289,7 @@ const OrganizerDashboard = () => {
               <h1 className="font-display text-2xl font-bold text-foreground">
                 {activeTab === "dashboard" && "Organizer Dashboard"}
                 {activeTab === "events" && "My Events"}
+                {activeTab === "subscription" && "Subscription"}
                 {activeTab === "settings" && "Settings"}
               </h1>
               <p className="text-muted-foreground text-sm">
@@ -500,6 +518,231 @@ const OrganizerDashboard = () => {
               )}
             </div>
           )}
+
+          {/* Subscription Tab */}
+          {activeTab === "subscription" && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Subscription Status Card */}
+              <Card className={`bg-card border-2 ${subscription.status === 'active' ? 'border-green-500/30' : subscription.status === 'expired' ? 'border-destructive/30' : 'border-accent/30'}`}>
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+                        subscription.status === 'active' ? 'bg-green-500/10' : 
+                        subscription.status === 'expired' ? 'bg-destructive/10' : 'bg-accent/10'
+                      }`}>
+                        {subscription.status === 'active' ? (
+                          <Crown className="w-8 h-8 text-green-600" />
+                        ) : subscription.status === 'expired' ? (
+                          <AlertCircle className="w-8 h-8 text-destructive" />
+                        ) : (
+                          <CreditCard className="w-8 h-8 text-accent" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h2 className="text-2xl font-display font-bold text-foreground">
+                            {subscription.status === 'active' ? subscription.plan : 
+                             subscription.status === 'expired' ? 'Subscription Expired' : 'No Active Subscription'}
+                          </h2>
+                          <Badge className={`${
+                            subscription.status === 'active' ? 'bg-green-500/10 text-green-600 border-green-500/20' :
+                            subscription.status === 'expired' ? 'bg-destructive/10 text-destructive border-destructive/20' :
+                            'bg-accent/10 text-accent border-accent/20'
+                          }`}>
+                            {subscription.status === 'active' ? 'Active' : subscription.status === 'expired' ? 'Expired' : 'None'}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground">
+                          {subscription.status === 'active' 
+                            ? `Valid until ${new Date(subscription.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                            : subscription.status === 'expired'
+                            ? 'Renew your subscription to continue creating events'
+                            : 'Subscribe to create and manage multiple events'}
+                        </p>
+                      </div>
+                    </div>
+                    {subscription.status !== 'active' && (
+                      <Button className="gradient-primary text-primary-foreground gap-2">
+                        <Sparkles className="w-5 h-5" />
+                        Subscribe Now
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Subscription Details */}
+              {subscription.status === 'active' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="bg-card border-border">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-muted-foreground text-sm">Events Used</p>
+                          <p className="font-display text-3xl font-bold text-foreground">{subscription.eventsUsed}/{subscription.eventsAllowed}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <CalendarDays className="w-6 h-6 text-primary" />
+                        </div>
+                      </div>
+                      <div className="mt-4 w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all" 
+                          style={{ width: `${(subscription.eventsUsed / subscription.eventsAllowed) * 100}%` }}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card border-border">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-muted-foreground text-sm">Subscription Amount</p>
+                          <p className="font-display text-3xl font-bold text-foreground">₹{subscription.amount.toLocaleString()}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+                          <IndianRupee className="w-6 h-6 text-green-600" />
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">Per year</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card border-border">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-muted-foreground text-sm">Days Remaining</p>
+                          <p className="font-display text-3xl font-bold text-foreground">
+                            {Math.max(0, Math.ceil((new Date(subscription.expiryDate) - new Date()) / (1000 * 60 * 60 * 24)))}
+                          </p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                          <Clock className="w-6 h-6 text-accent" />
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">Until renewal</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Subscription Plans */}
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="font-display text-xl">Available Plans</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Basic Plan */}
+                    <div className="border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
+                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Basic</h3>
+                      <p className="text-3xl font-bold text-foreground mb-1">₹15,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
+                      <p className="text-muted-foreground text-sm mb-4">Perfect for small organizers</p>
+                      <ul className="space-y-2 mb-6">
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Up to 20 events/year
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Basic analytics
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Email support
+                        </li>
+                      </ul>
+                      <Button variant="outline" className="w-full">Choose Basic</Button>
+                    </div>
+
+                    {/* Premium Plan */}
+                    <div className="border-2 border-primary rounded-xl p-6 relative bg-primary/5">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+                      </div>
+                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Premium</h3>
+                      <p className="text-3xl font-bold text-foreground mb-1">₹25,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
+                      <p className="text-muted-foreground text-sm mb-4">Best for growing organizers</p>
+                      <ul className="space-y-2 mb-6">
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Up to 50 events/year
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Advanced analytics
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Priority support
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Featured listings
+                        </li>
+                      </ul>
+                      <Button className="w-full gradient-primary text-primary-foreground">
+                        {subscription.plan === 'Annual Premium' ? 'Current Plan' : 'Choose Premium'}
+                      </Button>
+                    </div>
+
+                    {/* Enterprise Plan */}
+                    <div className="border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
+                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Enterprise</h3>
+                      <p className="text-3xl font-bold text-foreground mb-1">₹50,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
+                      <p className="text-muted-foreground text-sm mb-4">For large organizations</p>
+                      <ul className="space-y-2 mb-6">
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Unlimited events
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Full analytics suite
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          24/7 phone support
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          Dedicated manager
+                        </li>
+                      </ul>
+                      <Button variant="outline" className="w-full">Choose Enterprise</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Payment History */}
+              {subscription.status === 'active' && (
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="font-display text-xl">Payment History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">Annual Premium Subscription</p>
+                            <p className="text-sm text-muted-foreground">{new Date(subscription.startDate).toLocaleDateString('en-IN')}</p>
+                          </div>
+                        </div>
+                        <p className="font-semibold text-foreground">₹{subscription.amount.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
