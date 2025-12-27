@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
-import { AdminAuthProvider } from "@/context/AdminAuthContext";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
@@ -18,7 +17,6 @@ import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const App = () => {
   // Force light mode as default
@@ -29,8 +27,7 @@ const App = () => {
 
   return (
   <AuthProvider>
-    <AdminAuthProvider>
-      <TooltipProvider>
+    <TooltipProvider>
         <Toaster />
         <BrowserRouter>
           <Routes>
@@ -47,22 +44,14 @@ const App = () => {
             <Route path="/organizer" element={<OrganizerDashboard />} />
             <Route path="/profile" element={<Profile />} />
             
-            {/* Admin Routes - Separate from frontend */}
+            {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <AdminProtectedRoute>
-                  <AdminDashboard />
-                </AdminProtectedRoute>
-              }
-            />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </AdminAuthProvider>
   </AuthProvider>
   );
 };
