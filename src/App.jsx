@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -19,7 +20,14 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
-const App = () => (
+const App = () => {
+  // Force light mode as default
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
+
+  return (
   <AuthProvider>
     <AdminAuthProvider>
       <TooltipProvider>
@@ -56,6 +64,7 @@ const App = () => (
       </TooltipProvider>
     </AdminAuthProvider>
   </AuthProvider>
-);
+  );
+};
 
 export default App;
