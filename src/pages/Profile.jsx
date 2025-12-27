@@ -118,6 +118,7 @@ const Profile = () => {
   };
 
   const getInitials = (name) => {
+    if (!name) return "U";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -125,6 +126,10 @@ const Profile = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Safe user display values
+  const userName = user?.email?.split("@")[0] || "User";
+  const userEmail = user?.email || "";
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -143,7 +148,7 @@ const Profile = () => {
                   <Avatar className="w-32 h-32 border-4 border-background shadow-lg">
                     <AvatarImage src={user.avatar} />
                     <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
-                      {getInitials(user.name)}
+                      {getInitials(userName)}
                     </AvatarFallback>
                   </Avatar>
                   <button className="absolute bottom-2 right-2 p-2 rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors">
@@ -155,11 +160,11 @@ const Profile = () => {
                   <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
                     <div>
                       <h1 className="font-display text-2xl font-bold text-foreground">
-                        {user.name}
+                        {userName}
                       </h1>
                       <p className="text-muted-foreground flex items-center gap-2 mt-1">
                         <Mail className="w-4 h-4" />
-                        {user.email}
+                        {userEmail}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
                         <Badge variant={user.role === "organizer" ? "default" : "secondary"}>
