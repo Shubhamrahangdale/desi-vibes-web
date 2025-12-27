@@ -743,6 +743,7 @@ const OrganizerDashboard = () => {
                 </Card>
               )}
             </div>
+          )}
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
