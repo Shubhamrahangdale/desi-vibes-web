@@ -29,6 +29,7 @@ const Navbar = () => {
   const isActive = (href) => location.pathname === href;
 
   const getInitials = (name) => {
+    if (!name) return "U";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -36,6 +37,10 @@ const Navbar = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Get user display name from profile or fallback
+  const userName = user?.email?.split("@")[0] || "User";
+  const userEmail = user?.email || "";
 
   const handleLogout = () => {
     logout();
@@ -83,16 +88,16 @@ const Navbar = () => {
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                        {getInitials(user.name)}
+                        {getInitials(userName)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-foreground">{user.name}</span>
+                    <span className="text-sm font-medium text-foreground">{userName}</span>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-sm font-medium">{userName}</p>
+                    <p className="text-xs text-muted-foreground">{userEmail}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -158,12 +163,12 @@ const Navbar = () => {
                   <Avatar className="w-10 h-10">
                     <AvatarImage src={user.avatar} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {getInitials(user.name)}
+                      {getInitials(userName)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-foreground">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <p className="font-medium text-foreground">{userName}</p>
+                    <p className="text-sm text-muted-foreground">{userEmail}</p>
                   </div>
                 </div>
               )}
