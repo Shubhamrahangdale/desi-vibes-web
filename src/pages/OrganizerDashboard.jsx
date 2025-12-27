@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-// Demo events data
+// Demo events data - status can be: draft, pending (waiting admin approval), published, rejected
 const initialEvents = [
   {
     id: 1,
@@ -55,7 +55,7 @@ const initialEvents = [
     price: 2500,
     totalTickets: 300,
     soldTickets: 180,
-    status: "published",
+    status: "pending",
     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400"
   },
   {
@@ -148,15 +148,16 @@ const OrganizerDashboard = () => {
     });
   };
 
-  const handleToggleStatus = (eventId) => {
+  const handleSubmitForApproval = (eventId) => {
     setEvents(events.map(e => {
       if (e.id === eventId) {
-        const newStatus = e.status === "published" ? "draft" : "published";
-        toast({
-          title: newStatus === "published" ? "Event Published" : "Event Unpublished",
-          description: `The event is now ${newStatus}.`,
-        });
-        return { ...e, status: newStatus };
+        if (e.status === "draft") {
+          toast({
+            title: "Submitted for Approval",
+            description: "Your event has been submitted for admin approval.",
+          });
+          return { ...e, status: "pending" };
+        }
       }
       return e;
     }));
@@ -410,8 +411,15 @@ const OrganizerDashboard = () => {
                               <div>
                                 <div className="flex items-center gap-2 mb-2">
                                   <h3 className="font-display text-xl font-semibold text-foreground">{event.title}</h3>
-                                  <Badge variant={event.status === "published" ? "default" : "secondary"}>
-                                    {event.status}
+                                  <Badge 
+                                    variant={event.status === "published" ? "default" : "secondary"}
+                                    className={
+                                      event.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                                      event.status === "rejected" ? "bg-red-100 text-red-800" :
+                                      event.status === "published" ? "bg-green-100 text-green-800" : ""
+                                    }
+                                  >
+                                    {event.status === "pending" ? "Pending Approval" : event.status}
                                   </Badge>
                                 </div>
                                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -451,14 +459,23 @@ const OrganizerDashboard = () => {
                                 <Edit className="w-4 h-4 mr-1" />
                                 Edit
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleToggleStatus(event.id)}
-                              >
-                                <Eye className="w-4 h-4 mr-1" />
-                                {event.status === "published" ? "Unpublish" : "Publish"}
-                              </Button>
+                              {event.status === "draft" && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleSubmitForApproval(event.id)}
+                                  className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Submit for Approval
+                                </Button>
+                              )}
+                              {event.status === "pending" && (
+                                <Badge className="bg-yellow-100 text-yellow-800 px-3 py-1">
+                                  <Clock className="w-3 h-3 mr-1 inline" />
+                                  Awaiting Admin Review
+                                </Badge>
+                              )}
                               <Link to={`/events/${event.id}`}>
                                 <Button variant="outline" size="sm">
                                   <Eye className="w-4 h-4 mr-1" />
