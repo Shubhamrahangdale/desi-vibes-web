@@ -1,68 +1,60 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Shield, Mail, Lock, Eye, EyeOff, Calendar } from "lucide-react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Eye, EyeOff, Sparkles, Shield, Mail, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAdmin } from '@/context/AdminContext';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAdmin();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Demo admin credentials
-  const ADMIN_EMAIL = "admin@eventmitra.com";
-  const ADMIN_PASSWORD = "admin123";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!email || !password) {
       toast({
-        title: "Error",
-        description: "Please enter both email and password",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter both email and password',
+        variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
 
-    // Simulate login delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      // Store admin session
-      localStorage.setItem("adminAuth", JSON.stringify({ 
-        email: ADMIN_EMAIL, 
-        name: "Admin",
-        role: "admin",
-        loginTime: new Date().toISOString()
-      }));
-      
+    const success = login(email, password);
+    
+    if (success) {
       toast({
-        title: "Welcome Admin!",
-        description: "Successfully logged in to admin panel",
+        title: 'Welcome back!',
+        description: 'Successfully logged in to admin panel.',
       });
-      navigate("/admin/dashboard");
+      navigate('/admin/dashboard');
     } else {
       toast({
-        title: "Login Failed",
-        description: "Invalid email or password",
-        variant: "destructive",
+        title: 'Login Failed',
+        description: 'Invalid email or password. Please try again.',
+        variant: 'destructive',
       });
     }
-
+    
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-background via-muted/30 to-background">
+    <div className="min-h-screen flex bg-background">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-secondary relative overflow-hidden">
         <div className="absolute inset-0 pattern-overlay opacity-10" />
@@ -121,7 +113,7 @@ const AdminLogin = () => {
             </span>
           </div>
 
-          <Card className="border-0 shadow-2xl shadow-primary/5">
+          <Card className="border shadow-2xl shadow-primary/5">
             <CardHeader className="space-y-1 pb-6">
               <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10">
                 <Shield className="w-8 h-8 text-primary" />
@@ -154,7 +146,7 @@ const AdminLogin = () => {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="password"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
