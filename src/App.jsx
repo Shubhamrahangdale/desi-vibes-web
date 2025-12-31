@@ -22,6 +22,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrganisers from "./pages/admin/AdminOrganisers";
 import AdminEvents from "./pages/admin/AdminEvents";
+import AdminTransactions from "./pages/admin/AdminTransactions";
 
 const App = () => {
   // Force light mode as default
@@ -58,6 +59,7 @@ const App = () => {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/organisers" element={<AdminOrganisers />} />
                   <Route path="/admin/events" element={<AdminEvents />} />
+                  <Route path="/admin/transactions" element={<AdminTransactions />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>
