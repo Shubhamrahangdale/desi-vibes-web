@@ -217,15 +217,60 @@ const OrganizerDashboard = () => {
     resetForm();
   };
 
-  // Demo subscription data
-  const subscription = {
-    status: 'active', // 'active', 'expired', 'none'
-    plan: 'Annual Premium',
-    amount: 25000,
-    startDate: '2024-01-15',
-    expiryDate: '2025-01-15',
-    eventsAllowed: 50,
+  // Subscription state and data
+  const [subscription, setSubscription] = useState({
+    status: 'none', // 'active', 'expired', 'none'
+    plan: null,
+    amount: 0,
+    startDate: null,
+    expiryDate: null,
+    eventsAllowed: 0,
     eventsUsed: events.length,
+  });
+
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  const subscriptionPlans = [
+    { id: 'starter', name: 'Starter Plan', price: 20000, events: 20, features: ['Up to 20 events/year', 'Basic analytics', 'Email support'] },
+    { id: 'professional', name: 'Professional Plan', price: 50000, events: 50, features: ['Up to 50 events/year', 'Advanced analytics', 'Priority support', 'Featured listings'] },
+    { id: 'unlimited', name: 'Unlimited Plan', price: 100000, events: 'Unlimited', features: ['Unlimited events', 'Full analytics suite', '24/7 phone support', 'Dedicated manager', 'Custom branding'] },
+  ];
+
+  const handlePurchasePlan = (plan) => {
+    setSelectedPlan(plan);
+    setShowPurchaseModal(true);
+  };
+
+  const confirmPurchase = () => {
+    const today = new Date();
+    const expiryDate = new Date(today);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    
+    setSubscription({
+      status: 'active',
+      plan: selectedPlan.name,
+      amount: selectedPlan.price,
+      startDate: today.toISOString().split('T')[0],
+      expiryDate: expiryDate.toISOString().split('T')[0],
+      eventsAllowed: selectedPlan.events === 'Unlimited' ? 999 : selectedPlan.events,
+      eventsUsed: events.length,
+    });
+    
+    setShowPurchaseModal(false);
+    setSelectedPlan(null);
+    toast({
+      title: "Subscription Activated!",
+      description: `You have successfully subscribed to ${selectedPlan.name}.`,
+    });
+  };
+
+  // Calculate event stats
+  const eventStats = {
+    pending: events.filter(e => e.status === 'pending').length,
+    active: events.filter(e => e.status === 'published').length,
+    expired: events.filter(e => new Date(e.date) < new Date() && e.status === 'published').length,
+    draft: events.filter(e => e.status === 'draft').length,
   };
 
   const sidebarItems = [
@@ -629,114 +674,139 @@ const OrganizerDashboard = () => {
                 </div>
               )}
 
+              {/* Event Stats when subscribed */}
+              {subscription.status === 'active' && (
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="font-display text-xl">Event Statistics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
+                        <p className="text-2xl font-bold text-accent">{eventStats.pending}</p>
+                        <p className="text-sm text-muted-foreground">Pending Approval</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <p className="text-2xl font-bold text-green-600">{eventStats.active}</p>
+                        <p className="text-sm text-muted-foreground">Active Events</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                        <p className="text-2xl font-bold text-destructive">{eventStats.expired}</p>
+                        <p className="text-sm text-muted-foreground">Expired Events</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-muted border border-border">
+                        <p className="text-2xl font-bold text-foreground">{eventStats.draft}</p>
+                        <p className="text-sm text-muted-foreground">Draft Events</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Subscription Plans */}
               <Card className="bg-card border-border">
                 <CardHeader>
-                  <CardTitle className="font-display text-xl">Available Plans</CardTitle>
+                  <CardTitle className="font-display text-xl">
+                    {subscription.status === 'active' ? 'Upgrade Your Plan' : 'Choose Your Plan'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Basic Plan */}
-                    <div className="border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Basic</h3>
-                      <p className="text-3xl font-bold text-foreground mb-1">₹15,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
-                      <p className="text-muted-foreground text-sm mb-4">Perfect for small organizers</p>
-                      <ul className="space-y-2 mb-6">
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Up to 20 events/year
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Basic analytics
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Email support
-                        </li>
-                      </ul>
-                      <Button variant="outline" className="w-full">Choose Basic</Button>
-                    </div>
-
-                    {/* Premium Plan */}
-                    <div className="border-2 border-primary rounded-xl p-6 relative bg-primary/5">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {subscriptionPlans.map((plan, index) => (
+                      <div 
+                        key={plan.id}
+                        className={`border rounded-xl p-6 transition-all hover:shadow-lg ${
+                          index === 1 
+                            ? 'border-2 border-primary bg-primary/5 relative' 
+                            : 'border-border hover:border-primary/50'
+                        } ${subscription.plan === plan.name ? 'ring-2 ring-primary' : ''}`}
+                      >
+                        {index === 1 && (
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+                          </div>
+                        )}
+                        <h3 className="font-display text-lg font-semibold text-foreground mb-2">{plan.name}</h3>
+                        <p className="text-3xl font-bold text-foreground mb-1">
+                          ₹{plan.price.toLocaleString()}
+                          <span className="text-sm font-normal text-muted-foreground">/year</span>
+                        </p>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          {plan.events === 'Unlimited' ? 'Unlimited events' : `Up to ${plan.events} events`}
+                        </p>
+                        <ul className="space-y-2 mb-6">
+                          {plan.features.map((feature, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm text-foreground">
+                              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        <Button 
+                          className={`w-full ${index === 1 ? 'gradient-primary text-primary-foreground' : ''}`}
+                          variant={index === 1 ? 'default' : 'outline'}
+                          onClick={() => handlePurchasePlan(plan)}
+                          disabled={subscription.plan === plan.name}
+                        >
+                          {subscription.plan === plan.name ? 'Current Plan' : `Choose ${plan.name.split(' ')[0]}`}
+                        </Button>
                       </div>
-                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Premium</h3>
-                      <p className="text-3xl font-bold text-foreground mb-1">₹25,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
-                      <p className="text-muted-foreground text-sm mb-4">Best for growing organizers</p>
-                      <ul className="space-y-2 mb-6">
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Up to 50 events/year
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Advanced analytics
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Priority support
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Featured listings
-                        </li>
-                      </ul>
-                      <Button className="w-full gradient-primary text-primary-foreground">
-                        {subscription.plan === 'Annual Premium' ? 'Current Plan' : 'Choose Premium'}
-                      </Button>
-                    </div>
-
-                    {/* Enterprise Plan */}
-                    <div className="border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-                      <h3 className="font-display text-lg font-semibold text-foreground mb-2">Annual Enterprise</h3>
-                      <p className="text-3xl font-bold text-foreground mb-1">₹50,000<span className="text-sm font-normal text-muted-foreground">/year</span></p>
-                      <p className="text-muted-foreground text-sm mb-4">For large organizations</p>
-                      <ul className="space-y-2 mb-6">
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Unlimited events
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Full analytics suite
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          24/7 phone support
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          Dedicated manager
-                        </li>
-                      </ul>
-                      <Button variant="outline" className="w-full">Choose Enterprise</Button>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Payment History */}
+              {/* Transaction & Plan Details */}
               {subscription.status === 'active' && (
                 <Card className="bg-card border-border">
                   <CardHeader>
-                    <CardTitle className="font-display text-xl">Payment History</CardTitle>
+                    <CardTitle className="font-display text-xl">Transaction Details</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                            <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                              <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-foreground">{subscription.plan}</p>
+                              <p className="text-sm text-muted-foreground">Transaction ID: TXN{Date.now().toString().slice(-8)}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Annual Premium Subscription</p>
-                            <p className="text-sm text-muted-foreground">{new Date(subscription.startDate).toLocaleDateString('en-IN')}</p>
+                          <div className="text-right">
+                            <p className="font-bold text-xl text-foreground">₹{subscription.amount.toLocaleString()}</p>
+                            <Badge className="bg-green-500/10 text-green-600 border border-green-500/20">Paid</Badge>
                           </div>
                         </div>
-                        <p className="font-semibold text-foreground">₹{subscription.amount.toLocaleString()}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Purchase Date</p>
+                            <p className="font-medium text-foreground">
+                              {new Date(subscription.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Expiry Date</p>
+                            <p className="font-medium text-foreground">
+                              {new Date(subscription.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Events Allowed</p>
+                            <p className="font-medium text-foreground">
+                              {subscription.eventsAllowed === 999 ? 'Unlimited' : subscription.eventsAllowed}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Events Remaining</p>
+                            <p className="font-medium text-foreground">
+                              {subscription.eventsAllowed === 999 ? 'Unlimited' : Math.max(0, subscription.eventsAllowed - subscription.eventsUsed)}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -955,6 +1025,67 @@ const OrganizerDashboard = () => {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Purchase Plan Modal */}
+      {showPurchaseModal && selectedPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-2xl shadow-xl w-full max-w-md animate-scale-in">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                Confirm Purchase
+              </h2>
+              <button 
+                onClick={() => { setShowPurchaseModal(false); setSelectedPlan(null); }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Crown className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-foreground">{selectedPlan.name}</h3>
+                <p className="text-3xl font-bold text-primary mt-2">₹{selectedPlan.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/year</span></p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Events Allowed</span>
+                  <span className="font-medium text-foreground">{selectedPlan.events === 'Unlimited' ? 'Unlimited' : selectedPlan.events}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Validity</span>
+                  <span className="font-medium text-foreground">1 Year</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Support</span>
+                  <span className="font-medium text-foreground">{selectedPlan.id === 'unlimited' ? '24/7 Phone' : selectedPlan.id === 'professional' ? 'Priority' : 'Email'}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1" 
+                  onClick={() => { setShowPurchaseModal(false); setSelectedPlan(null); }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1 gradient-primary text-primary-foreground gap-2" 
+                  onClick={confirmPurchase}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Pay Now
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}
