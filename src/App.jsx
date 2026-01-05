@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Profile from "./pages/Profile";
 import PaymentFailed from "./pages/PaymentFailed";
+import OrganizerLanding from "./pages/OrganizerLanding";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrganisers from "./pages/admin/AdminOrganisers";
@@ -52,6 +53,7 @@ const App = () => {
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/organizer" element={<OrganizerDashboard />} />
+                  <Route path="/organizer-landing" element={<OrganizerLanding />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/payment-failed" element={<PaymentFailed />} />
                   
