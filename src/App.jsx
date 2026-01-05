@@ -18,6 +18,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Profile from "./pages/Profile";
+import PaymentFailed from "./pages/PaymentFailed";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrganisers from "./pages/admin/AdminOrganisers";
@@ -52,6 +53,7 @@ const App = () => {
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/organizer" element={<OrganizerDashboard />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/payment-failed" element={<PaymentFailed />} />
                   
                   {/* Admin Routes */}
                   <Route path="/admin" element={<AdminLogin />} />
